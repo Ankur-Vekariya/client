@@ -24,6 +24,11 @@ export async function registerVelidation(values) {
   emailVerify(errors, values);
   return errors;
 }
+
+export async function profileValidation(values) {
+  const errors = emailVerify({}, values);
+  return errors;
+}
 // velidate password
 
 function passwordVerify(error = {}, values) {
