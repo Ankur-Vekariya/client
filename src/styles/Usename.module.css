@@ -20,6 +20,9 @@
   @apply border bg-indigo-500 w-3/4 py-4 rounded-lg text-gray-50 text-lg shadow-sm text-center;
 }
 
-.btn:hover{
-background-color: #ff6a6a;
+.btn:hover {
+  background-color: #ff6a6a;
+}
+input[type="file"] {
+  display: none;
 }

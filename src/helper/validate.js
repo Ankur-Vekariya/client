@@ -18,6 +18,12 @@ export async function resetPasswordVelidation(values) {
   return error;
 }
 
+export async function registerVelidation(values) {
+  const errors = usernameVerify({}, values);
+  passwordVerify(errors, values);
+  emailVerify(errors, values);
+  return errors;
+}
 // velidate password
 
 function passwordVerify(error = {}, values) {
@@ -43,6 +49,19 @@ function usernameVerify(error = {}, values) {
     error.username = toast.error("Username Required");
   } else if (values.username.includes(" ")) {
     error.username = toast.error("Invalid Username...");
+  }
+  return error;
+}
+
+// velidate email
+
+function emailVerify(error = {}, values) {
+  if (!values.email) {
+    error.email = toast.error("email is required");
+  } else if (values.email.includes(" ")) {
+    error.email = toast.error("wrong email...");
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
+    error.email = toast.error("Invalid email address...");
   }
   return error;
 }
