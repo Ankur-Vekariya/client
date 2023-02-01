@@ -1,8 +1,14 @@
 import { toast } from "react-hot-toast";
-
+import { authentication} from '../helper/helper'
 export async function usernameVelidate(values) {
-  const error = usernameVerify({}, values);
-  return error;
+  const errors = usernameVerify({}, values);
+  if (values.username) {
+    const {status} = await authentication(values.username)
+    if (status != 200 ) {
+      errors.exist = toast.error('User does not exist')
+    }
+  }
+  return errors;
 }
 
 export async function passwordVelidate(values) {
