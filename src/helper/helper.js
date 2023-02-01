@@ -1,5 +1,7 @@
 import axios from "axios";
 
+axios.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN
+
 export async function authentication(username) {
   try {
     return await axios.post("/api/authenticate", { username });
@@ -59,5 +61,52 @@ export async function updateuser(response) {
     return Promise.resolve({ data });
   } catch (error) {
     return Promise.reject({ error: "couldn't updae profile" });
+  }
+}
+
+export async function generateOTP(username) {
+  try {
+    const {
+      data: { code },
+      status,
+    } = await axios.get("/api/generateOTP", { params: { username } });
+    if (status === 201) {
+      let {
+        data: { email },
+      } = await getUser({ username });
+      let text = `Your password otp is ${code}`;
+      await axios.post("/api/registerMail", {
+        username,
+        userEmail: email,
+        text,
+        subject: "recovery otp",
+      });
+    }
+    return Promise.resolve(code);
+  } catch (error) {
+    return Promise.reject({ error });
+  }
+}
+
+export async function verifyOTP({ username, code }) {
+  try {
+    const { data, status } = await axios.get("/api/verifyOTP", {
+      params: { username, code },
+    });
+    return { data, status };
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+
+export async function resetPassword({ username, password }) {
+  try {
+    const { data, status } = await axios.put("/api/resetPassword", {
+      username,
+      password,
+    });
+    return Promise.resolve({ data, status });
+  } catch (error) {
+    return Promise.reject(error);
   }
 }
