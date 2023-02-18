@@ -2,29 +2,44 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import avatar from "../assetes/profile.png";
 import styles from "../styles/Usename.module.css";
-import { Toaster } from "react-hot-toast";
+import { toast, Toaster } from "react-hot-toast";
 import { useFormik } from "formik";
 import { profileValidation } from "../helper/validate";
 import convertToBase64 from "../helper/convert";
 import extend from "../styles/profile.module.css";
+import useFetch from "../hooks/fetchHook";
+import { useAuthStore } from "../store/store";
+import { updateuser } from "../helper/helper";
 
 export default function Profile() {
+  const { username } = useAuthStore((state) => state.auth);
+
   const [file, setFile] = useState();
+
+  const [{ isLoading, apiData, serverError }] = useFetch(`user/${username}`);
 
   const formik = useFormik({
     initialValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      mobile: "",
-      address: "",
+      firstName: apiData?.firstName || "",
+      lastName: apiData?.lastName || "",
+      email: apiData?.email || "",
+      mobile: apiData?.mobile || "",
+      address: apiData?.address || "",
     },
+    enableReinitialize: true,
     validate: profileValidation,
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: async (values) => {
-      values = await Object.assign(values, { profile: file || "" });
-      console.log(values);
+      values = await Object.assign(values, {
+        profile: file || apiData?.profile || "",
+      });
+      let updatePromise = updateuser(values);
+      toast.promise(updatePromise, {
+        loading: "Upadating...",
+        success: <b>Update successfully</b>,
+        error: <b>Could not updated!</b>,
+      });
     },
   });
 
@@ -37,6 +52,29 @@ export default function Profile() {
     setFile(base64);
   };
   console.log("file", file);
+  if (isLoading)
+    return (
+      <div
+        className="spinner-grow inline-block w-12 h-12 bg-current rounded-full opacity-0"
+        role="status"
+      >
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    );
+  if (serverError) {
+    <div
+      className="bg-green-100 rounded-lg py-5 px-6 mb-4 text-base text-green-700"
+      role="alert"
+    >
+      <h4 className="text-2xl font-medium leading-tight mb-2">Well done!</h4>
+      <p className="mb-4">{serverError.message}</p>
+      <hr className="border-green-600 opacity-30" />
+      <p className="mt-4 mb-0">
+        Whenever you need to, be sure to use margin utilities to keep things
+        nice and tidy.
+      </p>
+    </div>;
+  }
   return (
     <div className="container mx-auto">
       <Toaster position="top-center" reverseOrder={false}></Toaster>
@@ -55,7 +93,7 @@ export default function Profile() {
             <div className="profile flex justify-center py-4">
               <label htmlFor="profile">
                 <img
-                  src={file || avatar}
+                  src={apiData?.profile || file || avatar}
                   alt="avatar"
                   className={`${styles.profile_img} ${extend.profile_img}`}
                 />

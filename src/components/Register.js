@@ -40,7 +40,7 @@ export default function Register() {
     console.log("base64", base64);
     setFile(base64);
   };
-  console.log("file", file);
+
   return (
     <div className="container mx-auto">
       <Toaster position="top-center" reverseOrder={false}></Toaster>
