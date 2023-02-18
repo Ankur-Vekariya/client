@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import avatar from "../assetes/profile.png";
 import styles from "../styles/Usename.module.css";
 import { toast, Toaster } from "react-hot-toast";
@@ -17,7 +17,7 @@ export default function Profile() {
   const [file, setFile] = useState();
 
   const [{ isLoading, apiData, serverError }] = useFetch(`user/${username}`);
-
+  const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
       firstName: apiData?.firstName || "",
@@ -51,7 +51,12 @@ export default function Profile() {
     console.log("base64", base64);
     setFile(base64);
   };
-  console.log("file", file);
+
+  function userLogout() {
+    localStorage.removeItem("token");
+    navigate("/");
+  }
+
   if (isLoading)
     return (
       <div
@@ -141,15 +146,15 @@ export default function Profile() {
                 className={styles.textbox}
               />
               <button type="submit" className={styles.btn}>
-                Register
+                Update
               </button>
             </div>
             <div className="text-center py-4">
               <span className="text-gray-500">
                 Come back later
-                <Link className="text-red-500" to="/">
+                <button className="text-red-500" onClick={userLogout}>
                   Log Out
-                </Link>
+                </button>
               </span>
             </div>
           </form>
